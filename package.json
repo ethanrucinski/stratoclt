@@ -1,0 +1,25 @@
+{
+    "name": "stratoclt",
+    "bin": "./index.js",
+    "version": "1.0.0",
+    "description": "Commandline tool for Stratoshell",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/stratoshell/stratoclt.git"
+    },
+    "author": "Ethan Rucinski",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/stratoshell/stratoclt/issues"
+    },
+    "homepage": "https://github.com/stratoshell/stratoclt#readme",
+    "dependencies": {
+        "express": "^4.17.1",
+        "open": "^7.4.2",
+        "simple-oauth2": "^4.2.0"
+    }
+}
