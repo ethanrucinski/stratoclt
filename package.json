@@ -18,6 +18,7 @@
     },
     "homepage": "https://github.com/stratoshell/stratoclt#readme",
     "dependencies": {
+        "axios": "^0.21.1",
         "express": "^4.17.1",
         "open": "^7.4.2",
         "simple-oauth2": "^4.2.0"
