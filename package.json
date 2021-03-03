@@ -25,6 +25,6 @@
         "ssh2": "^0.8.9"
     },
     "pkg": {
-	    "assets": "assets/success.html"
+        "assets": "assets/success.html"
     }
 }
