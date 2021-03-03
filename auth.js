@@ -49,19 +49,14 @@ class Auth {
                 scope: scope,
                 redirect_uri: callbackUrl,
             };
-
-            console.log(options);
-
             try {
                 const aT = await this.client.getToken(options);
                 this.accessToken = aT;
-                console.log("Sending response!");
                 await new Promise((resolve) => {
                     res.status(200).sendFile(
-                        path.join(__dirname + "/success.html"),
+                        path.join(__dirname + "/static/success.html"),
                         (err) => {
                             if (err) console.log(err);
-                            console.log("sent!");
                             tokenCallback(aT);
                             resolve();
                         }
@@ -101,16 +96,19 @@ class Auth {
     getToken = async function () {
         if (!this.accessToken) {
             // Need to get a completely new token all together
+            console.log("Please login using browser...");
             try {
+                let server = {};
                 this.accessToken = await new Promise(
                     async (resolve, reject) => {
                         let authApp = await this.createAuthApp(resolve, reject);
-                        authApp.listen(3000, async (err) => {
+                        server = authApp.listen(3000, async (err) => {
                             if (err) reject(err);
                             open("http://localhost:3000");
                         });
                     }
                 );
+                server.close();
                 return this.accessToken;
             } catch (err) {
                 console.log("Couldn't get authentication token!");
