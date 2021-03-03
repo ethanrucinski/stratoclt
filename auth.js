@@ -54,7 +54,7 @@ class Auth {
                 this.accessToken = aT;
                 await new Promise((resolve) => {
                     res.status(200).sendFile(
-                        path.join(__dirname + "/static/success.html"),
+                        path.join(__dirname + "/assets/success.html"),
                         (err) => {
                             if (err) console.log(err);
                             tokenCallback(aT);
