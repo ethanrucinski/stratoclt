@@ -1,10 +1,13 @@
 const Client = require("ssh2").Client;
 
+const { FileSystem } = require("./fileSystem.js");
+
 class Connection {
     constructor(task) {
         this.task = task;
         this.bastionConn = new Client();
         this.taskConn = new Client();
+        this.fileSystem = null;
     }
 
     async connect() {
@@ -52,10 +55,22 @@ class Connection {
                 .on("ready", () => {
                     this.taskConn.shell(process.env.TERM, {}, (err, stream) => {
                         if (err) throw err;
-
+                        this.taskConn.sftp((err, sftp) => {
+                            if (err) {
+                                console.log("Couldn't start SFTP");
+                                console.log(err);
+                                throw err;
+                            }
+                            this.fileSystem = new FileSystem(
+                                process.cwd(),
+                                "/root/",
+                                sftp
+                            );
+                        });
                         stream
                             .on("close", () => {
                                 console.log("Exited from task.");
+                                this.fileSystem.end();
                                 this.taskConn.end();
                                 this.bastionConn.end();
                                 resolve();
