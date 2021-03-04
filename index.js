@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-const axios = require("axios");
-//const fs = require("fs");
-//const { spawn } = require("child_process");
-const path = require("path");
-
 const { Auth } = require("./auth.js");
 const { Task } = require("./task.js");
 const { Connection } = require("./connection.js");

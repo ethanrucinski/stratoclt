@@ -53,7 +53,7 @@ class Task {
             }),
         };
         try {
-            let taskStatus = await new Promise((resolve, reject) => {
+            await new Promise((resolve, reject) => {
                 axios(config)
                     .then((response) => {
                         this.status = response.data.taskStatus;
