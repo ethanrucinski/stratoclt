@@ -21,13 +21,16 @@
     "dependencies": {
         "axios": "^0.21.1",
         "chokidar": "^3.5.1",
+        "command-line-usage": "^6.1.1",
         "express": "^4.17.1",
         "jest": "^26.6.3",
         "jsonwebtoken": "^8.5.1",
         "keytar": "^7.4.0",
+        "minimist": "^1.2.5",
         "open": "^7.4.2",
         "simple-oauth2": "^4.2.0",
-        "ssh2": "^0.8.9"
+        "ssh2": "^0.8.9",
+        "unpipe": "^1.0.0"
     },
     "pkg": {
         "assets": "assets/success.html"
