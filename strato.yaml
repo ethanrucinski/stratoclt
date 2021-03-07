@@ -10,4 +10,6 @@ Stratoshell:
     PreSyncCommands:
         - node --version
     PostSyncCommands:
+        - cd test
         - npm install
+        - node test.js

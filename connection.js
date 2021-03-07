@@ -102,6 +102,27 @@ class Connection {
                                 }
                             });
 
+                        stream
+                            .on("close", () => {
+                                console.log("Exited from task.");
+                                this.portForwardingServers.forEach((pfs) => {
+                                    pfs.close();
+                                });
+                                this.fileSystem.end();
+                                this.taskConn.end();
+                                this.bastionConn.end();
+                                resolve();
+                            })
+                            .on("data", function (data) {
+                                // Data flowing by pipe
+                            })
+                            .stderr.on("data", function (data) {
+                                process.stderr.write(data);
+                            });
+                        stream.stdout.pipe(process.stdout);
+                        process.stdin.pipe(stream.stdin);
+                        process.stdin.setRawMode(true);
+
                         // Next execute post sync commands
                         const postSync = async () => {
                             // First send these commands
@@ -140,27 +161,6 @@ class Connection {
                                 postSync
                             );
                         });
-
-                        stream
-                            .on("close", () => {
-                                console.log("Exited from task.");
-                                this.portForwardingServers.forEach((pfs) => {
-                                    pfs.close();
-                                });
-                                this.fileSystem.end();
-                                this.taskConn.end();
-                                this.bastionConn.end();
-                                resolve();
-                            })
-                            .on("data", function (data) {
-                                // Data flowing by pipe
-                            })
-                            .stderr.on("data", function (data) {
-                                process.stderr.write(data);
-                            });
-                        stream.stdout.pipe(process.stdout);
-                        process.stdin.pipe(stream.stdin);
-                        process.stdin.setRawMode(true);
                     });
                 })
                 .on("error", () => {
