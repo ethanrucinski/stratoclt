@@ -1,5 +1,5 @@
 const Client = require("ssh2").Client;
-
+const net = require("net");
 const { FileSystem } = require("./fileSystem.js");
 
 class Connection {
@@ -9,6 +9,7 @@ class Connection {
         this.taskConn = new Client();
         this.fileSystem = null;
         this.config = config;
+        this.portForwardingServers = [];
     }
 
     async connect() {
@@ -52,25 +53,29 @@ class Connection {
 
             this.taskConn
                 .on("ready", () => {
-                    // Set up port forwarding if required
-                    // if (this.config.getPortMappings()) {
-                    //     this.config.getPortMappings().forEach((pFC) => {
-                    //         this.taskConn.forwardOut(
-                    //             this.task.ip,
-                    //             pFC.TargetPort,
-                    //             "127.0.0.1",
-                    //             pFC.Port,
-                    //             (err) => {
-                    //                 console.log(
-                    //                     `Couldn't start port forwarding: ${JSON.stringify(
-                    //                         pFC
-                    //                     )}`
-                    //                 );
-                    //                 console.log(err);
-                    //             }
-                    //         );
-                    //     });
-                    // }
+                    // Start port forwarding
+                    this.config.getPortMappings().forEach((pm) => {
+                        // Add one port mapping
+                        let server = net.createServer((socket) => {
+                            this.taskConn.forwardOut(
+                                "127.0.0.1",
+                                pm.Port,
+                                "127.0.0.1",
+                                pm.TargetPort,
+                                (err, stream) => {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    socket.pipe(stream);
+                                    stream.pipe(socket);
+                                }
+                            );
+                        });
+                        server.listen(pm.Port, "127.0.0.1", () => {
+                            console.log(`Listening on port ${pm.Port}`);
+                        });
+                        this.portForwardingServers.push(server);
+                    });
 
                     // Start SFTP
                     this.taskConn.sftp((err, sftp) => {
@@ -89,9 +94,13 @@ class Connection {
                     // Start shell
                     this.taskConn.shell(process.env.TERM, {}, (err, stream) => {
                         if (err) throw err;
+
                         stream
                             .on("close", () => {
                                 console.log("Exited from task.");
+                                this.portForwardingServers.forEach((pfs) => {
+                                    pfs.close();
+                                });
                                 this.fileSystem.end();
                                 this.taskConn.end();
                                 this.bastionConn.end();

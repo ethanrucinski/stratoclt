@@ -7,7 +7,13 @@ class FileSystem {
         this.connection = connection;
         this.watcher = chokidar
             .watch("", {
-                ignored: ["node_modules", ".git", "stratoclt-*", ".gitignore"],
+                ignored: [
+                    "node_modules",
+                    ".git",
+                    "stratoclt-*",
+                    ".gitignore",
+                    "*/node_modules",
+                ],
                 cwd: this.localRoot,
             })
             .on("all", (event, path) => {
@@ -47,8 +53,7 @@ class FileSystem {
             `${this.destinationRoot}${path}`,
             (err) => {
                 if (err) {
-                    console.log("Couldn't add " + path);
-                    //console.log(err);
+                    //console.log("Couldn't add " + path);
                 }
             }
         );
@@ -61,8 +66,7 @@ class FileSystem {
     addDirectory(path) {
         this.connection.mkdir(`${this.destinationRoot}${path}`, (err) => {
             if (err && err.code != 4) {
-                console.log("Couldn't add directory " + path);
-                //console.log(err);
+                //console.log("Couldn't add directory " + path);
             }
         });
     }

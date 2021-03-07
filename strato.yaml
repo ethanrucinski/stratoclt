@@ -6,7 +6,7 @@ Stratoshell:
     Connection:
         Ports:
             - Port: 3000
-              TargetPort: 3000
+              TargetPort: 3001
     PreSyncCommands:
         - node --version
     PostSyncCommands:

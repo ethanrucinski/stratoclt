@@ -88,6 +88,7 @@ async function main() {
     await task.waitTaskStart();
 
     const conn = new Connection(task, config);
+
     try {
         await conn.connect();
     } catch (err) {

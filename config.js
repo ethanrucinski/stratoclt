@@ -31,15 +31,15 @@ class Config {
     }
 
     getPortMappings() {
-        return this.configOptions.Stratoshell.Connection.Ports;
+        return this.configOptions.Stratoshell.Connection?.Ports || [];
     }
 
     getPreSyncCommands() {
-        return this.configOptions.Stratoshell.PreSyncCommands;
+        return this.configOptions.Stratoshell.PreSyncCommands || [];
     }
 
     getPostSyncCommands() {
-        return this.configOptions.Stratoshell.PostSyncCommands;
+        return this.configOptions.Stratoshell.PostSyncCommands || [];
     }
 }
 
