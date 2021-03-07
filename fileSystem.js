@@ -1,7 +1,7 @@
 const chokidar = require("chokidar");
 
 class FileSystem {
-    constructor(localRootPath, destinationRootPath, connection) {
+    constructor(localRootPath, destinationRootPath, connection, readyCallback) {
         this.localRoot = localRootPath;
         this.destinationRoot = destinationRootPath;
         this.connection = connection;
@@ -19,6 +19,9 @@ class FileSystem {
             .on("all", (event, path) => {
                 this.listener(event, path);
             });
+        this.startup = true;
+        this.readyCallback = readyCallback;
+        this.changeCount = 0;
     }
 
     listener(event, path) {
@@ -27,12 +30,14 @@ class FileSystem {
         }
         switch (event) {
             case "add":
+                this.addChange();
                 this.addFile(path);
                 break;
             case "change":
                 this.addFile(path);
                 break;
             case "addDir":
+                this.addChange();
                 this.addDirectory(path);
                 break;
             case "unlink":
@@ -47,14 +52,28 @@ class FileSystem {
         }
     }
 
+    addChange() {
+        if (this.startup) {
+            this.changeCount++;
+        }
+    }
+
+    removeChange() {
+        if (this.startup) {
+            this.changeCount--;
+            if (this.changeCount == 0) {
+                this.startup = false;
+                this.readyCallback();
+            }
+        }
+    }
+
     addFile(path) {
         this.connection.fastPut(
             `${this.localRoot}/${path}`,
             `${this.destinationRoot}${path}`,
-            (err) => {
-                if (err) {
-                    //console.log("Couldn't add " + path);
-                }
+            () => {
+                this.removeChange();
             }
         );
     }
@@ -64,10 +83,8 @@ class FileSystem {
     }
 
     addDirectory(path) {
-        this.connection.mkdir(`${this.destinationRoot}${path}`, (err) => {
-            if (err && err.code != 4) {
-                //console.log("Couldn't add directory " + path);
-            }
+        this.connection.mkdir(`${this.destinationRoot}${path}`, () => {
+            this.removeChange();
         });
     }
 

@@ -77,23 +77,69 @@ class Connection {
                         this.portForwardingServers.push(server);
                     });
 
-                    // Start SFTP
-                    this.taskConn.sftp((err, sftp) => {
-                        if (err) {
-                            console.log("Couldn't start SFTP");
-                            console.log(err);
-                            throw err;
-                        }
-                        this.fileSystem = new FileSystem(
-                            process.cwd(),
-                            "/root/",
-                            sftp
-                        );
-                    });
-
                     // Start shell
                     this.taskConn.shell(process.env.TERM, {}, (err, stream) => {
                         if (err) throw err;
+
+                        // First send these commands
+                        this.config
+                            .getPreSyncCommands()
+                            .forEach(async (cmd) => {
+                                try {
+                                    await new Promise((resolve, reject) => {
+                                        stream.write(
+                                            `${cmd} \n`,
+                                            "utf-8",
+                                            (err) => {
+                                                if (err) reject(err);
+                                                resolve();
+                                            }
+                                        );
+                                    });
+                                } catch (err) {
+                                    console.log(`Couldn't write: ${cmd}`);
+                                    console.log(err);
+                                }
+                            });
+
+                        // Next execute post sync commands
+                        const postSync = async () => {
+                            // First send these commands
+                            this.config
+                                .getPostSyncCommands()
+                                .forEach(async (cmd) => {
+                                    try {
+                                        await new Promise((resolve, reject) => {
+                                            stream.write(
+                                                `${cmd} \n`,
+                                                "utf-8",
+                                                (err) => {
+                                                    if (err) reject(err);
+                                                    resolve();
+                                                }
+                                            );
+                                        });
+                                    } catch (err) {
+                                        console.log(`Couldn't write: ${cmd}`);
+                                        console.log(err);
+                                    }
+                                });
+                        };
+
+                        // Start SFTP
+                        this.taskConn.sftp((err, sftp) => {
+                            if (err) {
+                                console.log("Couldn't start SFTP");
+                                console.log(err);
+                                throw err;
+                            }
+                            this.fileSystem = new FileSystem(
+                                process.cwd(),
+                                "/root/",
+                                sftp,
+                                postSync
+                            );
+                        });
 
                         stream
                             .on("close", () => {
