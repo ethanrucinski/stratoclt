@@ -5,6 +5,7 @@ const commandLineUsage = require("command-line-usage");
 const { Auth } = require("./auth.js");
 const { Task } = require("./task.js");
 const { Connection } = require("./connection.js");
+const { Config } = require("./config.js");
 const auth = new Auth();
 
 const argv = require("minimist")(process.argv.slice(2));
@@ -12,6 +13,9 @@ const sections = [
     {
         header: "Stratoshell command line tool",
         content: "Client CLI utility for using Stratoshell",
+    },
+    {
+        content: "Usage: stratoclt [OPTIONS]",
     },
     {
         header: "Options",
@@ -27,9 +31,19 @@ const sections = [
                 description: "Delete stored stratoshell credentials",
                 type: Boolean,
             },
+            {
+                name: "config-file",
+                alias: "f",
+                description:
+                    'Task configuration filename (default "strato.yaml" or "strato.yml")',
+                type: String,
+            },
         ],
     },
 ];
+
+// Parameters
+let configFilePath = null;
 
 async function handleCLIInputs() {
     // Check for help option requested
@@ -44,6 +58,11 @@ async function handleCLIInputs() {
         console.log("Login credentials cleared!");
         process.exit(0);
     }
+
+    // Check for config file override
+    if (argv["config-file"] || argv["f"]) {
+        configFilePath = argv["config-file"] || argv["f"];
+    }
 }
 
 async function main() {
@@ -52,15 +71,29 @@ async function main() {
     // Otherwise start tool
     console.log("Starting stratoshell command line tool...");
 
+    // Deal with config
+    let config;
+    try {
+        config = new Config(configFilePath);
+    } catch (err) {
+        console.log(err);
+        process.exit(1);
+    }
+
     // Create a new task and request remote instance
-    let task = new Task(auth);
+    let task = new Task(auth, config);
     await task.requestNewTask();
 
     // Wait for task to start
     await task.waitTaskStart();
 
-    const conn = new Connection(task);
-    await conn.connect();
+    const conn = new Connection(task, config);
+    try {
+        await conn.connect();
+    } catch (err) {
+        console.log(err);
+        process.exit(1);
+    }
 
     process.exit(0);
 }

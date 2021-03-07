@@ -30,7 +30,8 @@
         "open": "^7.4.2",
         "simple-oauth2": "^4.2.0",
         "ssh2": "^0.8.9",
-        "unpipe": "^1.0.0"
+        "unpipe": "^1.0.0",
+        "yaml": "^1.10.0"
     },
     "pkg": {
         "assets": "assets/success.html"

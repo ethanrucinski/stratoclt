@@ -1,0 +1,13 @@
+Stratoshell:
+    Task:
+        Image: alpine-nodejs
+        Cpu: 256
+        Ram: 0.5
+    Connection:
+        Ports:
+            - Port: 3000
+              TargetPort: 3000
+    PreSyncCommands:
+        - node --version
+    PostSyncCommands:
+        - npm install

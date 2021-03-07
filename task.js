@@ -1,23 +1,34 @@
 const axios = require("axios");
 
 class Task {
-    constructor(auth) {
+    constructor(auth, config) {
         this.requestId = null;
         this.key = null;
         this.ip = null;
         this.auth = auth;
         this.status = null;
+        this.config = config;
     }
 
     async requestNewTask() {
         let token = await this.auth.getToken();
         console.log("Requesting a new task...");
+
+        // Handle task config
+        const taskConfig = this.config.getTaskConfig();
+
         const config = {
             method: "post",
             url: "https://api.us-east-1.dev.stratoshell.com/keygen",
             headers: {
                 Authorization: `Bearer ${token.token.access_token}`,
+                "Content-Type": "application/json",
             },
+            data: JSON.stringify({
+                image: taskConfig.Image,
+                cpu: parseInt(taskConfig.Cpu),
+                ram: parseFloat(taskConfig.Ram),
+            }),
         };
         try {
             let taskRequestDetails = await new Promise((resolve, reject) => {
@@ -35,7 +46,7 @@ class Task {
         } catch (err) {
             console.log("Failed to request new task!");
             console.log(err);
-            return false;
+            throw err;
         }
     }
 

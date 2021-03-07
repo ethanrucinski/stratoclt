@@ -48,7 +48,7 @@ class FileSystem {
             (err) => {
                 if (err) {
                     console.log("Couldn't add " + path);
-                    console.log(err);
+                    //console.log(err);
                 }
             }
         );
@@ -62,7 +62,7 @@ class FileSystem {
         this.connection.mkdir(`${this.destinationRoot}${path}`, (err) => {
             if (err && err.code != 4) {
                 console.log("Couldn't add directory " + path);
-                console.log(err);
+                //console.log(err);
             }
         });
     }
