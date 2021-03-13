@@ -64,10 +64,16 @@ class Connection {
                                 pm.TargetPort,
                                 (err, stream) => {
                                     if (err) {
-                                        return reject(err);
+                                        //return reject(err);
+                                        /*console.log(
+                                            "Port forwardign stream error"
+                                        );*/
+                                        socket.destroy()
+                                    } else {
+                                        socket.pipe(stream);
+                                        stream.pipe(socket);
+                                        
                                     }
-                                    socket.pipe(stream);
-                                    stream.pipe(socket);
                                 }
                             );
                         });
@@ -117,7 +123,8 @@ class Connection {
                                 // Data flowing by pipe
                             })
                             .stderr.on("data", function (data) {
-                                process.stderr.write(data);
+                                console.log(data);
+                                console.log("Error!");
                             });
                         stream.stdout.pipe(process.stdout);
                         process.stdin.pipe(stream.stdin);
