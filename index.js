@@ -79,7 +79,6 @@ async function main() {
         console.log(err);
         process.exit(1);
     }
-
     // Create a new task and request remote instance
     let task = new Task(auth, config);
     await task.requestNewTask();

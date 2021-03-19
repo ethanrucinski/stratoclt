@@ -14,9 +14,9 @@ const { AuthorizationCode } = require("simple-oauth2");
 
 class Auth {
     constructor() {
-        this.client_id = "7g72seg6ahnhb4o0hg7ojkd02h";
+        this.client_id = "135kjdaolqrcnaodj0mk4ln9qc";
         this.client_secret =
-            "1b490938tnh2k9k5d1g9mp2fcducc42t9a1fmc3h72brcfc6pst8";
+            "1vtuu2r4548dnst9mb3qh19ubicmpuv5b43phofta6a66b71l0n5";
         this.client = new AuthorizationCode({
             client: {
                 id: this.client_id,
@@ -55,14 +55,40 @@ class Auth {
                 const aT = await this.client.getToken(options);
                 this.accessToken = aT;
                 await new Promise((resolve) => {
-                    res.status(200).sendFile(
-                        path.join(__dirname + "/assets/success.html"),
-                        (err) => {
-                            if (err) console.log(err);
-                            tokenCallback(aT);
-                            resolve();
-                        }
-                    );
+                    res.writeHead(200, { "Content-Type": "text/html" });
+                    res.write(`<html>
+                    <head>
+                        <link
+                            href="https://d3oia8etllorh5.cloudfront.net/20201215211355/css/bootstrap.min.css"
+                            rel="stylesheet"
+                            media="screen"
+                        />
+                        <link
+                            href="https://d3oia8etllorh5.cloudfront.net/20201215211355/css/cognito-login.css"
+                            rel="stylesheet"
+                            media="screen"
+                        />
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="modal-dialog">
+                                <div class="modal-content background-customizable">
+                                    <div>
+                                        <div>
+                                            <div class="banner-customizable">
+                                                <center>Login Complete</center>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                </html>`);
+                    res.end(() => {
+                        tokenCallback(aT);
+                        resolve();
+                    });
                 });
             } catch (error) {
                 console.log(error);
@@ -92,9 +118,9 @@ class Auth {
                     resolve(this.accessToken);
                 })
                 .catch((err) => {
-                    console.log("Couldn't refresh token!");
+                    console.log("Couldn't use saved credentials!");
                     console.log(err.message);
-                    return null;
+                    resolve(null);
                 });
         });
     };

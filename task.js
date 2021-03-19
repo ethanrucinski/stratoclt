@@ -11,6 +11,7 @@ class Task {
     }
 
     async requestNewTask() {
+    
         let token = await this.auth.getToken();
         console.log("Requesting a new task...");
 
